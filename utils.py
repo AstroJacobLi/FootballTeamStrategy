@@ -26,3 +26,19 @@ def match_i_Huskies_passing_table(filename, match_i):
                 else:
                     player_dic[passing['DestinationPlayerID'][i]][1] += 1
     return player_dic
+
+
+def Huskies_passing_table(filename):
+    passing = pd.read_csv(filename)
+    player_dic = {}
+    for i in range(len(passing)):
+        if passing['TeamID'][i] == 'Huskies':
+            if passing['OriginPlayerID'][i] not in player_dic:
+                player_dic[passing['OriginPlayerID'][i]] = [1, 0]
+            else:
+                player_dic[passing['OriginPlayerID'][i]][0] += 1
+            if passing['DestinationPlayerID'][i] not in player_dic:
+                player_dic[passing['DestinationPlayerID'][i]] = [0, 1]
+            else:
+                player_dic[passing['DestinationPlayerID'][i]][1] += 1
+    return player_dic
