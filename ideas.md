@@ -40,7 +40,13 @@
 - inform the coach about the next season
 - Can you generalize your findings to say something about how to design more effective teams?
 
-
+quantitive indicators:
+- diversity：？？
+- coordination：借鉴paper1的network strength; algebraic connectivity
+- adaptability：？？
+- flexibility：？？
+- tempo：借鉴50passes time
+- flow：？？
 
 
 
