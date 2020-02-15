@@ -72,6 +72,48 @@ def match_i_Huskies_passing_table(filename, match_i):
                     player_dic[passing['DestinationPlayerID'][i]][1] += 1
     return player_dic
 
+def match_i_passing_table(filename, team_id, match_i):
+    '''
+    Match i-th {TeamID} players passing table
+    
+    Return: {playername: [origin, destination]}
+    '''
+    passing = pd.read_csv(filename)
+    player_dic = {}
+    for i in range(len(passing)):
+        if passing['MatchID'][i] == match_i:
+            if passing['TeamID'][i] == team_id:
+                if passing['OriginPlayerID'][i] not in player_dic:
+                    player_dic[passing['OriginPlayerID'][i]] = [1, 0]
+                else:
+                    player_dic[passing['OriginPlayerID'][i]][0] += 1
+                if passing['DestinationPlayerID'][i] not in player_dic:
+                    player_dic[passing['DestinationPlayerID'][i]] = [0, 1]
+                else:
+                    player_dic[passing['DestinationPlayerID'][i]][1] += 1
+    return player_dic
+
+def match_i_Opponent_passing_table(filename, match_i):
+    '''
+    Match i-th Opponent players passing table
+    
+    Return: {playername: [origin, destination]}
+    '''
+    passing = pd.read_csv(filename)
+    player_dic = {}
+    for i in range(len(passing)):
+        if passing['MatchID'][i] == match_i:
+            if passing['TeamID'][i] != 'Huskies':
+                if passing['OriginPlayerID'][i] not in player_dic:
+                    player_dic[passing['OriginPlayerID'][i]] = [1, 0]
+                else:
+                    player_dic[passing['OriginPlayerID'][i]][0] += 1
+                if passing['DestinationPlayerID'][i] not in player_dic:
+                    player_dic[passing['DestinationPlayerID'][i]] = [0, 1]
+                else:
+                    player_dic[passing['DestinationPlayerID'][i]][1] += 1
+    return player_dic
+
 
 def Huskies_passing_table(filename):
     passing = pd.read_csv(filename)
