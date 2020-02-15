@@ -87,7 +87,15 @@ def build_network(df, team, matchid):
         passes = unidirection_pass[edge] / 5
         weight = dist + passes
         weight_dict[edge] = weight
-        
+    
+    df['weight'] = np.array([weight_dict[(row['OriginPlayerID'], row['DestinationPlayerID'])] for ind, row in df.iterrows()])
+
+    # Rebuild the graph, with weights
+    G = nx.from_pandas_edgelist(df, source='OriginPlayerID', 
+                                target='DestinationPlayerID', 
+                                edge_attr=['weight'], 
+                                create_using=nx.DiGraph())
+    
     return G, pos, centrality_dict, geometrical_dist, unidirection_pass, weight_dict
 
 
@@ -126,7 +134,8 @@ def plot_network(df, team, matchid, ax=None, savefig=False):
                                                                  vmax=max(node_color)))
     cbar = plt.colorbar(sm, ax=ax, extend='both')
     cbar.set_label('log( Betweenness Centrality )')
-
+    plt.xticks([20, 40, 60, 80])
+    plt.yticks([20, 40, 60, 80])
     plt.tick_params(direction='in')
     if savefig:
         plt.savefig('./{0}_match{1}.png'.format(team, matchid), bbox_inches='tight')
@@ -135,3 +144,30 @@ def plot_network(df, team, matchid, ax=None, savefig=False):
         return
     else:
         return ax
+
+
+def calc_network_params(graph):
+    '''
+    Calculate many indicators and structual parameters of the network.
+    
+    Graph must have weight!
+    '''
+    clustering_coeff = nx.algorithms.average_clustering(graph, weight='weight')
+    shortest_path = nx.algorithms.average_shortest_path_length(graph, weight='weight')
+    A = nx.adjacency_matrix(graph, weight='weight')
+    e = np.linalg.eigvals(A.todense())
+    largest_eigenvalue = np.real(max(e))
+    # The paper-1 doesn't use normalized algebraic connectivity
+    algebraic_conn = nx.algebraic_connectivity(graph.to_undirected(), weight='weight') 
+    eg_cen = list(nx.algorithms.eigenvector_centrality(graph, weight='weight').values())
+    eigen_centrality_dict = {'mean': np.mean(eg_cen), 'std': np.std(eg_cen, ddof=1)}
+    
+    network_params = {}
+    network_params['clustering_coeff'] = clustering_coeff
+    network_params['shortest_path'] = shortest_path
+    network_params['largest_eigenvalue'] = largest_eigenvalue
+    network_params['algebraic_conn'] = algebraic_conn
+    network_params['eigen_cen_mean'] = eigen_centrality_dict['mean']
+    network_params['eigen_cen_std'] = eigen_centrality_dict['std']
+    
+    return network_params
