@@ -47,7 +47,8 @@ def mcounter(gr, mo, weight_dict):
     #it to all fo the possible motifs
 
     for trip in u_triplets:
-        sub_gr = gr.subgraph(trip)
+        sub_gr = gr.subgraph(trip).to_directed()
+        sub_gr.remove_edges_from(sub_gr.selfloop_edges()) # remove self-looops
         weight_sum = np.sum([weight_dict[edge] for edge in sub_gr.edges])
         mot_match = list(map(lambda mot_id: nx.is_isomorphic(sub_gr, mo[mot_id]), mo.keys()))
         match_keys = [list(mo.keys())[i] for i in range(len(mo)) if mot_match[i]]
@@ -87,8 +88,8 @@ def match_i_passing_table(filename, team_id, match_i):
     '''
     passing = pd.read_csv(filename)
     player_dic = {}
-    for i in range(len(passing)):
-        if passing['MatchID'][i] == match_i:
+    if match_i == 'all':
+        for i in range(len(passing)):
             if passing['TeamID'][i] == team_id:
                 if passing['OriginPlayerID'][i] not in player_dic:
                     player_dic[passing['OriginPlayerID'][i]] = [1, 0]
@@ -98,41 +99,16 @@ def match_i_passing_table(filename, team_id, match_i):
                     player_dic[passing['DestinationPlayerID'][i]] = [0, 1]
                 else:
                     player_dic[passing['DestinationPlayerID'][i]][1] += 1
-    return player_dic
-
-def match_i_Opponent_passing_table(filename, match_i):
-    '''
-    Match i-th Opponent players passing table
-    
-    Return: {playername: [origin, destination]}
-    '''
-    passing = pd.read_csv(filename)
-    player_dic = {}
-    for i in range(len(passing)):
-        if passing['MatchID'][i] == match_i:
-            if passing['TeamID'][i] != 'Huskies':
-                if passing['OriginPlayerID'][i] not in player_dic:
-                    player_dic[passing['OriginPlayerID'][i]] = [1, 0]
-                else:
-                    player_dic[passing['OriginPlayerID'][i]][0] += 1
-                if passing['DestinationPlayerID'][i] not in player_dic:
-                    player_dic[passing['DestinationPlayerID'][i]] = [0, 1]
-                else:
-                    player_dic[passing['DestinationPlayerID'][i]][1] += 1
-    return player_dic
-
-
-def Huskies_passing_table(filename):
-    passing = pd.read_csv(filename)
-    player_dic = {}
-    for i in range(len(passing)):
-        if passing['TeamID'][i] == 'Huskies':
-            if passing['OriginPlayerID'][i] not in player_dic:
-                player_dic[passing['OriginPlayerID'][i]] = [1, 0]
-            else:
-                player_dic[passing['OriginPlayerID'][i]][0] += 1
-            if passing['DestinationPlayerID'][i] not in player_dic:
-                player_dic[passing['DestinationPlayerID'][i]] = [0, 1]
-            else:
-                player_dic[passing['DestinationPlayerID'][i]][1] += 1
+    else:
+        for i in range(len(passing)):
+            if passing['MatchID'][i] == match_i:
+                if passing['TeamID'][i] == team_id:
+                    if passing['OriginPlayerID'][i] not in player_dic:
+                        player_dic[passing['OriginPlayerID'][i]] = [1, 0]
+                    else:
+                        player_dic[passing['OriginPlayerID'][i]][0] += 1
+                    if passing['DestinationPlayerID'][i] not in player_dic:
+                        player_dic[passing['DestinationPlayerID'][i]] = [0, 1]
+                    else:
+                        player_dic[passing['DestinationPlayerID'][i]][1] += 1
     return player_dic
