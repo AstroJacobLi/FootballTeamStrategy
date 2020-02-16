@@ -84,8 +84,8 @@ def build_network(df, team, matchid):
         else:
             dist = 100 / geometrical_dist[edge]
             dist /= 10
-        passes = unidirection_pass[edge] / 5
-        weight = dist + passes
+        passes = unidirection_pass[edge]# / 5
+        weight = passes # + dist
         weight_dict[edge] = weight
     
     df['weight'] = np.array([weight_dict[(row['OriginPlayerID'], row['DestinationPlayerID'])] for ind, row in df.iterrows()])
@@ -160,14 +160,14 @@ def calc_network_params(graph):
     # The paper-1 doesn't use normalized algebraic connectivity
     algebraic_conn = nx.algebraic_connectivity(graph.to_undirected(), weight='weight') 
     eg_cen = list(nx.algorithms.eigenvector_centrality(graph, weight='weight').values())
-    eigen_centrality_dict = {'mean': np.mean(eg_cen), 'std': np.std(eg_cen, ddof=1)}
+    eigen_centrality_dict = {'max': np.max(eg_cen), 'std': np.std(eg_cen, ddof=1)}
     
     network_params = {}
     network_params['clustering_coeff'] = clustering_coeff
     network_params['shortest_path'] = shortest_path
     network_params['largest_eigenvalue'] = largest_eigenvalue
     network_params['algebraic_conn'] = algebraic_conn
-    network_params['eigen_cen_mean'] = eigen_centrality_dict['mean']
+    network_params['eigen_cen_max'] = eigen_centrality_dict['max']
     network_params['eigen_cen_std'] = eigen_centrality_dict['std']
     
     return network_params
