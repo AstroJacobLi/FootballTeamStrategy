@@ -5,6 +5,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
 
+def calc_mean_std(x):
+    return (np.mean(x), np.std(x, ddof=1) / np.sqrt(len(x)))
+
+def color_func(p):
+    if p > 0.2:
+        return 'dodgerblue'
+    elif p < 0.05:
+        return 'orange'
+    else:
+        return 'seagreen'
 
 def match_i_Huskies_passing_table(filename, match_i):
     '''
